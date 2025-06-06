@@ -1,65 +1,38 @@
-from tags.tag import Tag
-from sqlalchemy import inspect
+from models.servico import Servico
+from tags.combo import ComboBox
+from tags.cards import Card, CardDialog
 
 
-class Card:
-    def __init__(self, title, width="auto"):
-        self.title = title
-        self.data_pairs = {}
-        self.width = width
+class CardServico():
+    def __init__(self):
+        self.servico = Servico()
 
-    def add_data_pair(self, label, value):
-        self.data_pairs[label] = value
+    def get_cb_servico(self):
+        cb = ComboBox(name_id="cb_servico", label_text="Escolha um Serviço:")
+        cb.add_option("0", "--- Selecione um Serviço ---")
+        lista = self.servico.read_all()
+        for servico in lista:
+            cb.add_option(str(servico.idt_servico), servico.nme_servico)
+        return cb.make_html()
 
-    def add_object(self, obj, comments):
-        if obj and comments:  # Verifica se o objeto tem os comentários
-            inspector = inspect(obj)
-            for column in inspector.mapper.column_attrs:
-                column_name = column.key
-                label = comments.get(column_name)
-                if not label:
-                    label = column_name.replace("_", " ").title()
-                value = getattr(obj, column_name)
-                self.add_data_pair(label, value)
-        elif obj:  # Se o objeto não tiver os comentários
-            inspector = inspect(obj)
-            for column in inspector.mapper.column_attrs:
-                label = column.key.replace("_", " ").title()
-                value = getattr(obj, column.key)
-                self.add_data_pair(label, value)
-
-    def make_html(self):
-        style = f"width: {self.width}; padding: 10px;"
-        card = Tag("div", {"class": "card", "style": style})
-
-        # Título do Card
-        card_header = Tag("div", {"class": "card-header"}, content=self.title)
-        card.add_content(card_header.make_html())
-
-        # Corpo do Card
-        card_body = Tag("div", {"class": "card-body"})
-
-        # Construir os pares rótulo/valor
-        for label, value in self.data_pairs.items():
-            row = Tag("div", {"class": "row"})
-            label_col = Tag("div", {"class": "col-sm-4"}, content=label)
-            value_col = Tag("div", {"class": "col-sm-8"}, content=f"<strong>{str(value)}</strong>")
-            row.add_content(label_col.make_html() + value_col.make_html())
-            card_body.add_content(row.make_html())
-
-        card.add_content(card_body.make_html())
-
+    def get_card(self, idt_servico):
+        serv = self.servico.read_by_idt(idt_servico)
+        card = Card(title='Dados de Serviço', width='500px')
+        card.add_data_pair('Identificador:', serv.idt_servico)
+        card.add_data_pair('Nome do Serviço:', serv.nme_servico)
+        card.add_data_pair('Dias de Serviço:', serv.num_dias_servico)
+        card.add_data_pair('Valor do Serviço:', serv.vlr_servico)
+        card.add_data_pair('Texto Modelo:', serv.txt_modelo_servico)
+        card.add_data_pair('Status do Registro:', ('Ativo' if serv.sts_servico == 'A' else 'Inativo'))
         return card.make_html()
 
-
-class CardDialog(Card):
-    def make_html(self):
-        conteudo = ""
-        # Construir os pares rótulo/valor
-        for label, value in self.data_pairs.items():
-            row = Tag("div", {"class": "row"})
-            label_col = Tag("div", {"class": "col-sm-4"}, content=label)
-            value_col = Tag("div", {"class": "col-sm-8"}, content=f"<strong>{str(value)}</strong>")
-            row.add_content(label_col.make_html() + value_col.make_html())
-            conteudo += row.make_html()
-        return conteudo
+    def get_cardDialog(self, idt_servico):
+        serv = self.servico.read_by_idt(idt_servico)
+        card = CardDialog('Dados de Serviço')
+        card.add_data_pair('Identificador:', serv.idt_servico)
+        card.add_data_pair('Nome do Serviço:', serv.nme_servico)
+        card.add_data_pair('Dias de Serviço:', serv.num_dias_servico)
+        card.add_data_pair('Valor do Serviço:', serv.vlr_servico)
+        card.add_data_pair('Texto Modelo:', serv.txt_modelo_servico)
+        card.add_data_pair('Status do Registro:', ('Ativo' if serv.sts_servico == 'A' else 'Inativo'))
+        return card.make_html()
