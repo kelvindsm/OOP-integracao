@@ -2,6 +2,7 @@ from flask import Flask, render_template, session, request
 from opcoes.combos import ComboSetor, ComboLocal
 from opcoes.cards import CardServico
 from opcoes.tabelas import TabelaServico
+from opcoes.mapa import Mapa
 
 app = Flask(__name__)
 app.secret_key = 'senha'
@@ -73,6 +74,18 @@ def table_striped():
 def table_hover():
     tabela = TabelaServico()
     return tabela.get_table_hover()
+
+
+@app.route("/teste")
+def teste():
+    return render_template("mapa/teste.html", titulo="Mapa de teste")
+
+
+@app.route("/mapa")
+def mapa():
+    mapa = Mapa()
+    html, js = mapa.get_map()
+    return render_template("mapa/mapa.html", titulo="Plotar Pontos no Mapa", html=html, js=js)
 
 
 if __name__ == "__main__":

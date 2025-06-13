@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+
+{% block conteudo %}
+<h3 class="h3">Mapa de teste</h3>
+<div id="meuMapa" style="width: 1200px; height: 600px;"></div>
+
+{% endblock %}
+
+{% block js_script%}
+<script>
+    var map = L.map('meuMapa').setView([-15, -47], 8);
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+    }).addTo(map);
+
+    var marker = L.marker([-15.7757, -47.899629]).addTo(map);
+
+    var polygon = L.polygon([
+    [-15.769698, -47.893517],
+    [-15.769416, -47.892430],
+    [-15.764236, -47.894018],
+    [-15.764569, -47.895187]
+]).addTo(map);
+    polygon.bindPopup("CEUB")
+</script>
+{% endblock %}
